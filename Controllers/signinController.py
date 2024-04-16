@@ -1,3 +1,4 @@
+import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 
@@ -5,6 +6,8 @@ import cv2
 from PIL import Image, ImageTk
 import os
 
+from Controllers.attendanceController import AttendanceController
+from Controllers.faceComparison import FaceComparison
 from Controllers.signUpController import SignUpController
 from Model.signinModel import SignInModel
 from Views.signinView import SignInView
@@ -65,7 +68,7 @@ class SignInController:
                     x, y, w, h = faces[0]
                     # Take a picture of the detected face and save it
                     accuracy = (correct_faces / total_faces) * 100 if total_faces > 0 else 0
-                    if accuracy >= 70:
+                    if accuracy >= 30:
                         face_img = frame_rgb[y:y + h, x:x + w]
                         folder_path = "faceDatabase"
                         os.makedirs(folder_path, exist_ok=True)
@@ -74,6 +77,7 @@ class SignInController:
                         # Stop camera feed
                         cap.release()
                         self.camera_open = False
+                        self.mark_attendance()
                         return
 
                     correct_faces += 1
@@ -101,3 +105,30 @@ class SignInController:
 
         # Start the camera feed update process
         update_camera_feed()
+
+    def mark_attendance(self):
+        with sqlite3.connect("attendance.db") as connection:
+            self.connection = connection
+            # Create the 'students' table if it doesn't exist
+            cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
+            cursor.execute(
+                "CREATE TABLE IF NOT EXISTS students (first_name TEXT, last_name TEXT, matric_number TEXT, department TEXT, level TEXT)")
+
+            cursor.execute("SELECT * FROM students WHERE matric_number = ?", (self.model.matric_number,))
+            existing_student = cursor.fetchone()
+            if existing_student:
+                result = FaceComparison.compare_face(self.model.matric_number, 'current')
+                if result == True:
+                    print("student found")
+                    print(existing_student)
+                    AttendanceController.markAttendance([existing_student],self.model.course_code)
+                    messagebox.showinfo("Successful", "Attendance Marked Successfully")
+                    self.view.destroy()
+                    SignInController()
+                else:
+                    print("profile not found")
+                    messagebox.showerror("Face not detected","Position your face properly and have a good light source")
+            else:
+                messagebox.showerror("Error", "Student with the matric number does not exist")
+
