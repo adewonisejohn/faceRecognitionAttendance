@@ -1,4 +1,7 @@
+import os
 import tkinter as tk
+from tkinter import simpledialog
+import subprocess
 
 class SignInView(tk.Tk):
     def __init__(self, controller):
@@ -43,6 +46,10 @@ class SignInView(tk.Tk):
         self.sign_up_button = tk.Button(self.left_container, text="Sign Up", font=button_font, command=self.controller.open_sign_up_page, bg="black", fg="black",  bd=0, relief="flat", height=2)  # Remove outline and increase height
         self.sign_up_button.grid(row=6, column=0, pady=(5, 10), padx=10, sticky="ew")  # Add padding
 
+        # View Attendance button
+        self.view_attendance_button = tk.Button(self.left_container, text="View Attendance", font=("IBM Plex Sans", 14), command=self.view_attendance)
+        self.view_attendance_button.grid(row=7, column=0, pady=(5, 10), padx=10, sticky="ew")  # Add padding
+
         # Right container with ATTENDANCE MANAGEMENT SYSTEM label
         self.right_container = tk.Frame(self, bg="#342E37")  # Set background color to 342E37
         self.right_container.pack(side="right", fill="both", expand=True)
@@ -52,3 +59,18 @@ class SignInView(tk.Tk):
         self.title_label = tk.Label(self.right_container, text="ATTENDANCE \n MANAGEMENT SYSTEM", fg="white", bg="#342E37", font=title_font)  # Set background color to 342E37
         self.title_label.pack(expand=True, anchor="center")
 
+    def view_attendance(self):
+        password = simpledialog.askstring("Password", "Enter Password:", show="*")
+        if password == "admin":
+            print("Logged in successfully")
+            self.open_folder()
+
+        else:
+            print("Incorrect password")
+
+    def open_folder(self):
+        folder_path = "./attendanceList"
+        if os.path.exists(folder_path):
+            subprocess.Popen(["open", folder_path])  # Opens the folder in Finder on macOS
+        else:
+            print("Attendance List folder does not exist.")

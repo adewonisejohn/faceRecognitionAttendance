@@ -85,11 +85,15 @@ class SignInController:
                 total_faces += len(faces)
 
                 # Draw rectangles around the detected faces
+                accuracy = (correct_faces / total_faces) * 100 if total_faces > 0 else 0
+
                 for (x, y, w, h) in faces:
+                    accuracy_text = f"Accuracy: {accuracy:.2f}%"
+                    cv2.putText(frame_rgb, accuracy_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+                                1)
                     cv2.rectangle(frame_rgb, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
                 # Calculate and print the accuracy level
-                accuracy = (correct_faces / total_faces) * 100 if total_faces > 0 else 0
                 print("Accuracy:", accuracy, "%")
 
                 # Convert frame to ImageTk format
