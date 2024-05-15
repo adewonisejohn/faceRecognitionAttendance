@@ -68,7 +68,7 @@ class SignInController:
                     x, y, w, h = faces[0]
                     # Take a picture of the detected face and save it
                     accuracy = (correct_faces / total_faces) * 100 if total_faces > 0 else 0
-                    if accuracy >= 30:
+                    if accuracy >= 30 :
                         face_img = frame_rgb[y:y + h, x:x + w]
                         folder_path = "faceDatabase"
                         os.makedirs(folder_path, exist_ok=True)
@@ -122,7 +122,7 @@ class SignInController:
             cursor.execute("SELECT * FROM students WHERE matric_number = ?", (self.model.matric_number,))
             existing_student = cursor.fetchone()
             if existing_student:
-                result = FaceComparison.compare_face(self.model.matric_number, 'current')
+                result = FaceComparison.compare_face('current', self.model.matric_number)
                 if result == True:
                     print("student found")
                     print(existing_student)
